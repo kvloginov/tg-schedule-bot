@@ -17,6 +17,12 @@ public class UserDao {
             WHERE id = ?
             """;
 
+    private final String GET_USER_BY_TELEGRAM_ID_QUERY = """
+            SELECT id, tg_id, nickname
+            FROM tbl_user
+            WHERE tg_id = ?
+            """;
+
     private final String CREATE_USER_QUERY = """
             INSERT INTO tbl_user (tg_id, nickname)
             VALUES (?, ?)
@@ -61,6 +67,24 @@ public class UserDao {
     public User get(int id) {
         try (PreparedStatement pst = Database.prepareStatement(GET_USER_QUERY)) {
             pst.setInt(1, id);
+
+            var rs = pst.executeQuery();
+
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("id"),
+                        rs.getInt("tg_id"),
+                        rs.getString("nickname"));
+            }
+        } catch (SQLException ex) {
+            LOGGER.error("trouble", ex);
+        }
+        return null;
+    }
+
+    public User getByTelegramId(int telegramId) {
+        try (PreparedStatement pst = Database.prepareStatement(GET_USER_BY_TELEGRAM_ID_QUERY)) {
+            pst.setInt(1, telegramId);
 
             var rs = pst.executeQuery();
 

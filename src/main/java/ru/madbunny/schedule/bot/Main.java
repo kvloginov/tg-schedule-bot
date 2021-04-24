@@ -2,8 +2,9 @@ package ru.madbunny.schedule.bot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.madbunny.schedule.bot.dao.ReminderDao;
-import ru.madbunny.schedule.bot.dao.UserDao;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.Map;
 
@@ -17,22 +18,20 @@ public class Main {
     private static final Map<String, String> ENV = System.getenv();
 
     public static void main(String[] args) {
-        connectToDb();
-
-//        try {
-//            var botsApi = new TelegramBotsApi(DefaultBotSession.class);
-//            botsApi.registerBot(new ScheduleBot(ENV.get(BOT_NAME_VAR_NAME), ENV.get(BOT_TOKEN_VAR_NAME)));
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            var botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(new ScheduleBot(ENV.get(BOT_NAME_VAR_NAME), ENV.get(BOT_TOKEN_VAR_NAME)));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void connectToDb() {
-        ReminderDao reminderDao = new ReminderDao();
-        UserDao userDao = new UserDao();
-
-        var id = userDao.create(99000, "Kostyan!");
-        userDao.get(id);
-        userDao.updateNickname(id, "Now im your FATHER");
-    }
+//    public static void connectToDb() {
+//        ReminderDao reminderDao = new ReminderDao();
+//        UserDao userDao = new UserDao();
+//
+//        var id = userDao.create(99000, "Kostyan!");
+//        userDao.get(id);
+//        userDao.updateNickname(id, "Now im your FATHER");
+//    }
 }

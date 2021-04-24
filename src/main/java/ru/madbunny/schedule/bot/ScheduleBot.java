@@ -1,20 +1,29 @@
 package ru.madbunny.schedule.bot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.madbunny.schedule.bot.dao.UserDao;
+
+import java.io.Serializable;
 
 public class ScheduleBot extends TelegramLongPollingCommandBot {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserDao.class);
 
     private final String botName;
     private final String botToken;
 
-    public ScheduleBot(String botName, String botToken) {
+    private final ResponseService responseService;
 
+    public ScheduleBot(String botName, String botToken) {
         this.botName = botName;
         this.botToken = botToken;
+
+        responseService = new ResponseService();
     }
 
     @Override
@@ -25,18 +34,18 @@ public class ScheduleBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(Update update) {
         var msg = update.getMessage();
-        var chatId = msg.getChatId();
 
-        var answer = new SendMessage();
-        answer.setText("Hello World!");
-        answer.setChatId(chatId.toString());
+        var preparedResponse = responseService.prepare(msg);
 
-        try {
-            execute(answer);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+        if (preparedResponse instanceof BotApiMethod) {
+            try {
+                execute((BotApiMethod<? extends Serializable>) preparedResponse);
+            } catch (TelegramApiException e) {
+                LOGGER.error("An error occurred while sending message: {}", e.getMessage());
+            }
+            return;
         }
-
+        throw new RuntimeException("Can't handle message");
     }
 
     @Override
