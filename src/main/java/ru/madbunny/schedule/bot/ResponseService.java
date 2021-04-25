@@ -25,6 +25,7 @@ public class ResponseService {
 
     //TODO: можно создавать команды наследниками класса
     private final static String AVAILABLE_COMMANDS = """
+            /start - Начать работу с ботом
             /get_nickname - Посмотреть, под каким именем записаны в базе
             /set_nickname - Поменять имя
             /create_reminder - Создать напоминание
@@ -95,7 +96,7 @@ public class ResponseService {
             var name = message.getFrom().getFirstName() + " "
                     + message.getFrom().getLastName() + " ("
                     + message.getFrom().getUserName() + ")";
-            userDao.create(message.getFrom().getId(), name);
+            userDao.create(message.getFrom().getId(), name, chatId);
         }
 
         return answer;
@@ -213,7 +214,7 @@ public class ResponseService {
         } else {
             var current = userDao.getByTelegramId(message.getFrom().getId());
             if (null == current) {
-                userDao.create(message.getFrom().getId(), newName);
+                userDao.create(message.getFrom().getId(), newName, chatId);
             } else {
                 userDao.updateNickname(current.getId(), newName);
             }

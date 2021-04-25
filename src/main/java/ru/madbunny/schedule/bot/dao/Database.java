@@ -19,8 +19,8 @@ public class Database {
 //        var url = ENV.get(DATABASE_URL_VAR_NAME);
         var username = ENV.get(DATABASE_USERNAME_VAR_NAME);
         var pass = ENV.get(DATABASE_PASSWORD_VAR_NAME);
+        // TODO: нужно это тоже в try, иначе разрастаются коннекты
         var con = DriverManager.getConnection(url, username, pass);
-
         return con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
     }
 }

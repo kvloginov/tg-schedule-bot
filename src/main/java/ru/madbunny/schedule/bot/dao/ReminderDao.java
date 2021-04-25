@@ -35,6 +35,12 @@ public class ReminderDao {
                 AND user_id = ?
             """;
 
+    private static final String MARK_AS_COMPLETED = """
+            UPDATE tbl_reminder
+            SET completed = true
+            WHERE id = ?
+            """;
+
     /**
      * @return id of created reminder, -1 if error
      */
@@ -92,6 +98,15 @@ public class ReminderDao {
         return result;
     }
 
+    public void markAsCompleted(int id) {
+        try (PreparedStatement pst = Database.prepareStatement(MARK_AS_COMPLETED)) {
+            pst.setInt(1, id);
+            pst.executeUpdate();
+        } catch (SQLException ex) {
+            LOGGER.error("trouble", ex);
+        }
+    }
+
     public Reminder mapReminder(ResultSet resultSet) throws SQLException {
         return new Reminder(
                 resultSet.getInt("id"),
@@ -102,6 +117,4 @@ public class ReminderDao {
                 resultSet.getInt("user_id")
         );
     }
-
-
 }
