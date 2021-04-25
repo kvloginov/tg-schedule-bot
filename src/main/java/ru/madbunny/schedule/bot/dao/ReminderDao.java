@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.madbunny.schedule.bot.dto.Reminder;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -25,6 +26,13 @@ public class ReminderDao {
             FROM tbl_reminder
             WHERE completed = false 
                 AND reminder_time < ?
+            """;
+
+    private static final String GET_FOR_USER = """
+            SELECT id, creation_time, reminder_time, description, user_id, completed
+            FROM tbl_reminder
+            WHERE completed = false 
+                AND user_id = ?
             """;
 
     /**
@@ -53,27 +61,46 @@ public class ReminderDao {
     public List<Reminder> getActual(Instant fromTime) {
         var result = new ArrayList<Reminder>();
         try (PreparedStatement pst = Database.prepareStatement(GET_ACTUAL_QUERY)) {
-
-
             pst.setTimestamp(1, Timestamp.from(fromTime));
 
             var rs = pst.executeQuery();
 
             while (rs.next()) {
-                result.add(new Reminder(
-                        rs.getInt("id"),
-                        rs.getTimestamp("creation_time").toInstant(),
-                        rs.getTimestamp("reminder_time").toInstant(),
-                        rs.getString("description"),
-                        rs.getBoolean("completed"),
-                        rs.getInt("user_id")
-                ));
+                result.add(mapReminder(rs));
             }
 
         } catch (SQLException ex) {
             LOGGER.error("trouble", ex);
         }
         return result;
+    }
+
+    public List<Reminder> getForUser(int userId) {
+        var result = new ArrayList<Reminder>();
+        try (PreparedStatement pst = Database.prepareStatement(GET_FOR_USER)) {
+            pst.setInt(1, userId);
+
+            var rs = pst.executeQuery();
+
+            while (rs.next()) {
+                result.add(mapReminder(rs));
+            }
+
+        } catch (SQLException ex) {
+            LOGGER.error("trouble", ex);
+        }
+        return result;
+    }
+
+    public Reminder mapReminder(ResultSet resultSet) throws SQLException {
+        return new Reminder(
+                resultSet.getInt("id"),
+                resultSet.getTimestamp("creation_time").toInstant(),
+                resultSet.getTimestamp("reminder_time").toInstant(),
+                resultSet.getString("description"),
+                resultSet.getBoolean("completed"),
+                resultSet.getInt("user_id")
+        );
     }
 
 
