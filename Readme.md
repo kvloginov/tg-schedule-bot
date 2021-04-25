@@ -7,10 +7,11 @@ WORK IN PROGRESS
 Реализовано:
 
 * Смена имени
+* Создание простого напоминания вводом даты и описания
+* Отправка напоминания пользователю в нужное время 
 
 В планах:
 
-* Создание нового напоминания на конкретное время/дату
 * Создание напоминание через промежуток времени
 * Создание повторяющегося напоминания
 
@@ -52,7 +53,8 @@ CREATE TABLE public.tbl_user
     id integer NOT NULL DEFAULT nextval('user_id_seq'::regclass),
     tg_id integer NOT NULL,
     nickname text COLLATE pg_catalog."default" NOT NULL,
+    tg_chat_id bigint,
     CONSTRAINT user_pkey PRIMARY KEY (id)
-);
+)
 
 ```
