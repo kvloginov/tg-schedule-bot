@@ -21,17 +21,9 @@ public class Main {
         try {
             var botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(new ScheduleBot(ENV.get(BOT_NAME_VAR_NAME), ENV.get(BOT_TOKEN_VAR_NAME)));
+            LOGGER.info("Bot registered! Handling started.");
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            LOGGER.error("An error occurred while bot registering", e);
         }
     }
-
-//    public static void connectToDb() {
-//        ReminderDao reminderDao = new ReminderDao();
-//        UserDao userDao = new UserDao();
-//
-//        var id = userDao.create(99000, "Kostyan!");
-//        userDao.get(id);
-//        userDao.updateNickname(id, "Now im your FATHER");
-//    }
 }
